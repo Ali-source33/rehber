@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kişi Bilgisi</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 0 15px;
+        background: #f9f9f9;
+        color: #333;
+      }
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+      }
+      .kisi-bilgi {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+      }
+      .kisi-bilgi img {
+        display: block;
+        margin: 0 auto 15px;
+        max-width: 200px;
+        border-radius: 100px;
+        border: 3px solid #2c3e50;
+      }
+      .kisi-bilgi p {
+        font-size: 18px;
+        margin: 8px 0;
+      }
+      .error {
+        text-align: center;
+        color: red;
+        margin-top: 40px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Kişi Bilgisi</h1>
+
+    <div id="kisiContainer"></div>
+    <div id="errorMsg" class="error"></div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get("id");
+      const kisiContainer = document.getElementById("kisiContainer");
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (!id) {
+        errorMsg.textContent = "Lütfen geçerli bir kişi ID'si girin.";
+      } else {
+        fetch(`/kisi/${id}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Kişi bulunamadı.");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            kisiContainer.innerHTML = `
+              <div class="kisi-bilgi">
+                <img src="${data.fotoYolu}" alt="${data.ad} ${data.soyad}" />
+                <p><strong>Ad:</strong> ${data.ad || "-"}</p>
+                <p><strong>Soyad:</strong> ${data.soyad || "-"}</p>
+                <p><strong>Telefon:</strong> ${data.telefon || "-"}</p>
+                <p><strong>Email:</strong> ${data.email || "-"}</p>
+                <p><strong>Adres:</strong> ${data.adres || "-"}</p>
+                <p><strong>Gruplar:</strong> ${
+                  data.gruplar?.length
+                    ? data.gruplar.map((grup) => grup.ad).join(", ")
+                    : "-"
+                }</p>
+
+
+              </div>
+            `;
+          })
+          .catch((err) => {
+            errorMsg.textContent = err.message;
+          });
+      }
+    </script>
+  </body>
+</html>
